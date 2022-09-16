@@ -15,23 +15,6 @@ class NewSession(Session):
         except:
             pass
         
-    def buildUser(self, data, user_type):
-        if user_type == 'cliente':
-            cliente = {
-                'id': data[0],
-                'nome': data[1],
-                'cpf': data[2],
-                'cupons': data[3],
-                'telefone': data[4],
-                'senha': data[5],
-                'email': data[6],
-            }
-            return cliente
-        
-        elif user_type == 'parceiro':
-            parceiro = {}
-            return parceiro
-        
     def login(self, data:dict):
         self.reconnectIfNeeded()
         
@@ -46,11 +29,12 @@ class NewSession(Session):
 
         sql = f"SELECT * FROM {login_table} WHERE {login_column} = '{data['user']}'"
         try:
-            response = self.database.run(sql)[0]
+            response = self.database.run(sql, dict_cursor = True)
+
         except Exception as error:
             return {'error': 'Usuário não encontrado'}
         
-        user = self.buildUser(response, data['type'])
+        user = response[0]
         
         if data['password'] == user['senha']:
             user.update({'error': None})
