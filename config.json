@@ -1,0 +1,11 @@
+{
+    "database": {
+        "host": "bapkasorvetes.com.br",
+        "port": "3306",
+        "user": "python",
+        "password": "SucessoZOP2022!",
+        "database": "bapkasor_sistema",
+        "table_clientes": "clientes",
+        "table_parceiros": "parceiros"
+    }
+}

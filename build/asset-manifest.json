@@ -1,0 +1,16 @@
+{
+  "files": {
+    "main.css": "/static/css/main.ef665700.css",
+    "main.js": "/static/js/main.df1d111e.js",
+    "static/js/787.29193ec3.chunk.js": "/static/js/787.29193ec3.chunk.js",
+    "static/media/Arciform.ttf": "/static/media/Arciform.f5e2f8e51501a0f73dfc.ttf",
+    "index.html": "/index.html",
+    "main.ef665700.css.map": "/static/css/main.ef665700.css.map",
+    "main.df1d111e.js.map": "/static/js/main.df1d111e.js.map",
+    "787.29193ec3.chunk.js.map": "/static/js/787.29193ec3.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.ef665700.css",
+    "static/js/main.df1d111e.js"
+  ]
+}
