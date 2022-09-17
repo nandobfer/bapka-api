@@ -9,16 +9,7 @@ class NewSession(Session):
         super().__init__(database_auth, login_table)
         self.history_table = config['database']['table_historicos']
         
-    def reconnectIfNeeded(self):
-        try:
-            if not self.database.connection.is_connected():
-                self.reconnectDatabase()
-        except:
-            pass
-        
     def login(self, data:dict):
-        self.reconnectIfNeeded()
-        
         if data['type'] == 'cliente':
             login_table = config['database']['table_clientes']
             login_column = 'telefone'
