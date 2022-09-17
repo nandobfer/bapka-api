@@ -39,6 +39,23 @@ class NewSession(Session):
             return user
         else:
             return {'error': 'Senha inválida'}
+        
+    def searchCpf(self, data):
+        id = data['id']
+        cpf = data['cpf']
+
+        sql = f'SELECT * FROM clientes WHERE cpf = {cpf}'
+        try:
+            response = self.database.run(sql, True)[0]
+        except:
+            return {'error': 'Cliente não cadastrado.'}
+            
+        lojas = eval(response['lojas'])
+        if id in lojas:
+            return response
+
+        else:
+            return {'error': 'Cliente não cadastrado nessa loja'}
             
 def normalizeUser(data):
     new_data = {}
