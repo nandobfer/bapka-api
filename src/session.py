@@ -44,10 +44,16 @@ class NewSession(Session):
             return {'error': 'Senha inválida'}
         
     def getHistory(self, user_id:int, user_type:int, quantity = 0):
-        sql = f'SELECT * FROM {self.history_table} WHERE id_{user_type} = {user_id} {f"LIMIT {quantity}" if quantity > 0 else ""};'
+        sql = f'SELECT id_{user_type}, nome_{user_type}, data, hora, quantidade FROM {self.history_table} WHERE id_{user_type} = {user_id} {f"LIMIT {quantity}" if quantity > 0 else ""};'
         print(sql)
         data = self.database.run(sql, True)
 
+        for history in data:
+            history.update({'id': history[f'id_{user_type}']})
+            history.update({'nome': history[f'nome_{user_type}']})
+            history.pop(f'id_{user_type}')
+            history.pop(f'nome_{user_type}')
+            
         print(data)
         return data
         
