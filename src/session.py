@@ -22,9 +22,11 @@ class NewSession(Session):
         if data['type'] == 'cliente':
             login_table = config['database']['table_clientes']
             login_column = 'telefone'
+            history_type = 'parceiro'
         elif data['type'] == 'parceiro':
             login_table = config['database']['table_parceiros']
             login_column = 'email'
+            history_type = 'cliente'
             
         data = normalizeUser(data)
 
@@ -37,22 +39,31 @@ class NewSession(Session):
         
         if data['password'] == user['senha']:
             user.update({'error': None})
-            history = self.getHistory(user_id=user['id'], user_type=data['type'], quantity=3)
+            history = self.getHistory(user_id=user['id'], user_type=history_type, quantity=3)
             user.update({'historico': history})
             return user
         else:
             return {'error': 'Senha inválida'}
         
-    def getHistory(self, user_id:int, user_type:int, quantity = 0):
-        sql = f'SELECT id_{user_type}, nome_{user_type}, data, hora, quantidade FROM {self.history_table} WHERE id_{user_type} = {user_id} {f"LIMIT {quantity}" if quantity > 0 else ""};'
+    def getHistory(self, user_id:int, user_type:str, quantity = 0):
+        sql = f'SELECT id_{user_type}, nome_{user_type}, data, hora, quantidade FROM {self.history_table} WHERE id_{user_type} = {user_id} ORDER BY id DESC {f"LIMIT {quantity}" if quantity > 0 else ""};'
         print(sql)
         data = self.database.run(sql, True)
 
         for history in data:
+            history.update({'alvo': user_type.capitalize()})
+            
             history.update({'id': history[f'id_{user_type}']})
-            history.update({'nome': history[f'nome_{user_type}']})
+            history.update({'nome': history[f'nome_{user_type}'].split()[0]})
             history.pop(f'id_{user_type}')
             history.pop(f'nome_{user_type}')
+            
+            if history['quantidade'] < 0:
+                history.update({'operacao': 'Removido'})
+            else:
+                history.update({'operacao': 'Adicionado'})
+            
+        data[-1].update({'last': True})
             
         print(data)
         return data
