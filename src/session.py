@@ -7,6 +7,7 @@ class NewSession(Session):
         login_table = None
         database_auth = config['database']
         super().__init__(database_auth, login_table)
+        self.history_table = config['database']['table_historicos']
         
     def reconnectIfNeeded(self):
         try:
@@ -36,9 +37,19 @@ class NewSession(Session):
         
         if data['password'] == user['senha']:
             user.update({'error': None})
+            history = self.getHistory(user_id=user['id'], user_type=data['type'], quantity=3)
+            user.update({'historico': history})
             return user
         else:
             return {'error': 'Senha inválida'}
+        
+    def getHistory(self, user_id:int, user_type:int, quantity = 0):
+        sql = f'SELECT * FROM {self.history_table} WHERE id_{user_type} = {user_id} {f"LIMIT {quantity}" if quantity > 0 else ""};'
+        print(sql)
+        data = self.database.run(sql, True)
+
+        print(data)
+        return data
         
     def searchCpf(self, data):
         id = data['id']
