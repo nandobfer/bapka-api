@@ -28,9 +28,22 @@ def login_route():
     
     return json.dumps(cliente)
 
-@app.route('/get/', methods=['GET'])
-def get():
-    return 'get test'
+@app.route('/search_cpf/', methods=['POST'])
+def search_cpf():
+    data = request.get_json()
+    id = data['id']
+    cpf = data['cpf']
+
+    sql = f'SELECT * FROM clientes WHERE cpf = {cpf}'
+    response = session.database.run(sql, True)[0]
+    lojas = eval(response['lojas'])
+    print(lojas)
+    if id in lojas:
+        return json.dumps(response)
+
+    else:
+        return json.dumps({'error': 'Cliente não cadastro nessa loja'})        
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
