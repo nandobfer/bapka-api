@@ -35,14 +35,18 @@ def search_cpf():
     cpf = data['cpf']
 
     sql = f'SELECT * FROM clientes WHERE cpf = {cpf}'
-    response = session.database.run(sql, True)[0]
+    try:
+        response = session.database.run(sql, True)[0]
+    except:
+        return json.dumps({'error': 'Cliente não cadastrado.'})        
+        
     lojas = eval(response['lojas'])
     print(lojas)
     if id in lojas:
         return json.dumps(response)
 
     else:
-        return json.dumps({'error': 'Cliente não cadastro nessa loja'})        
+        return json.dumps({'error': 'Cliente não cadastrado nessa loja'})        
 
 
 if __name__ == '__main__':
