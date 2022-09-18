@@ -31,7 +31,7 @@ def login_route():
 @app.route('/search_cpf/', methods=['POST'])
 def search_cpf():
     data = request.get_json()
-    response = session.searchCpf(data)
+    response = session.searchCpf(data, request=True)
 
     return json.dumps(response)
 
@@ -46,7 +46,9 @@ def new_client():
 @app.route('/modificar_cupons/', methods=['POST'])
 def modificar_cupons():
     data = request.get_json()
+    print('')
     print(data)
+    print('')
     cliente = session.modifyCoupons(data)
     return json.dumps(cliente)
 
