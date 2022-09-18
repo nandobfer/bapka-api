@@ -55,8 +55,9 @@ class NewSession(Session):
                 history.update({'operacao': 'Removido'})
             else:
                 history.update({'operacao': 'Adicionado'})
-            
-        data[-1].update({'last': True})
+           
+        if data: 
+            data[-1].update({'last': True})
             
         print(data)
         return data
