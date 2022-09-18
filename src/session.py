@@ -1,4 +1,5 @@
-from burgos.session import Session, Connection
+from burgos.session import Session
+from datetime import datetime
 import json
 
 
@@ -13,11 +14,9 @@ class NewSession(Session):
         if data['type'] == 'cliente':
             login_table = config['database']['table_clientes']
             login_column = 'telefone'
-            history_type = 'parceiro'
         elif data['type'] == 'parceiro':
             login_table = config['database']['table_parceiros']
             login_column = 'email'
-            history_type = 'cliente'
             
         data = normalizeUser(data)
 
@@ -33,7 +32,7 @@ class NewSession(Session):
         
         if data['password'] == user['senha']:
             user.update({'error': None})
-            history = self.getHistory(user_id=user['id'], user_type=history_type, quantity=3)
+            history = self.getHistory(user_id=user['id'], user_type=data['type'], quantity=3)
             user.update({'historico': history})
             self.database.disconnect()
             return user
@@ -42,17 +41,21 @@ class NewSession(Session):
             return {'error': 'Senha inválida'}
         
     def getHistory(self, user_id:int, user_type:str, quantity = 0, disconnect=True):
-        sql = f'SELECT id_{user_type}, nome_{user_type}, data, hora, quantidade FROM {self.history_table} WHERE id_{user_type} = {user_id} ORDER BY id DESC {f"LIMIT {quantity}" if quantity > 0 else ""};'
+        if user_type == 'cliente':
+            target_type = 'parceiro'
+        elif user_type == 'parceiro':
+            target_type = 'cliente'
+        sql = f'SELECT id_{target_type}, nome_{target_type}, data, hora, quantidade FROM {self.history_table} WHERE id_{user_type} = {user_id} ORDER BY id DESC {f"LIMIT {quantity}" if quantity > 0 else ""};'
         print(sql)
         data = self.database.run(sql, True)
 
         for history in data:
             history.update({'alvo': user_type.capitalize()})
             
-            history.update({'id': history[f'id_{user_type}']})
-            history.update({'nome': history[f'nome_{user_type}'].split()[0]})
-            history.pop(f'id_{user_type}')
-            history.pop(f'nome_{user_type}')
+            history.update({'id': history[f'id_{target_type}']})
+            history.update({'nome': history[f'nome_{target_type}'].split()[0]})
+            history.pop(f'id_{target_type}')
+            history.pop(f'nome_{target_type}')
             
             if history['quantidade'] < 0:
                 history.update({'operacao': 'Removido'})
@@ -87,7 +90,7 @@ class NewSession(Session):
             print(response)
             cliente.update({'cupons': response["cupons"]})
 
-            history = self.getHistory(user_id=cliente['id'], user_type='parceiro', quantity=3)
+            history = self.getHistory(user_id=cliente['id'], user_type='cliente', quantity=3)
             cliente.update({'historico': history})
             
             if request:
@@ -159,10 +162,14 @@ class NewSession(Session):
         self.database.run(sql)
         
         # log the modification
-        sql = f"""INSERT INTO historicos
-        (id, id_parceiro, nome_parceiro, id_cliente, nome_cliente
-        data, hora, quantidade, pedido)
-        """
+        now = datetime.now()
+        current_date = now.strftime('%d/%m/%Y')
+        current_time = now.strftime('%H:%M')
+
+        sql = f"""INSERT INTO historicos (id_parceiro, nome_parceiro, id_cliente, nome_cliente, data, hora, quantidade) VALUES ({data['id_parceiro']}, '{data['nome_parceiro']}', {data['id_cliente']}, '{data['nome_cliente']}', '{current_date}', '{current_time}', {data['quantidade']});"""
+        print(sql)
+        
+        self.database.run(sql)
         
         cliente = self.searchCpf({'id': data['id_parceiro'], 'cpf': data['cpf']})
 
