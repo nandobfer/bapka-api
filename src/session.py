@@ -70,7 +70,7 @@ class NewSession(Session):
             cliente = self.database.run(sql, True, disconnect=False)[0]
         except:
             self.database.disconnect()
-            return {'error': 'Cliente não cadastrado.'}
+            return {'error': 'Cliente não cadastrado.', 'error_code': 1}
             
         sql = f'SELECT * FROM parceiro_{id} WHERE id_cliente = {cliente["id"]}'
         print(sql)
@@ -81,36 +81,55 @@ class NewSession(Session):
             return cliente
         except:
             self.database.disconnect()
-            return {'error': 'Cliente não cadastrado nessa loja'}
+            cliente.update({'error': 'Cliente não cadastrado nessa loja', 'error_code': 2})
+            return cliente
 
     def signupClient(self, data):
-        # getting new client id
-        sql = f'SELECT * FROM clientes'
-        id = len(self.database.run(sql, disconnect=False))
+        # check if client is already signed
+        sql = f"SELECT * FROM clientes WHERE cpf = {data['cliente']['input_cpf']};"
+        try:
+            cliente = self.database.run(sql, True, disconnect=False)[0]
 
-        # inserting client into general CLIENTES tançe
-        sql = f"""INSERT INTO clientes
-            (id, nome, cpf, telefone, senha, email, lojas) 
-            VALUES ({id}, '{data['cliente']['input_nome']}', '{data['cliente']['input_cpf']}', '{data['cliente']['input_telefone']}', 
-            '{data['cliente']['input_senha']}', '{data['cliente']['input_email']}', '[{data['id_parceiro']}]');
-        """
-        print(sql)
-        self.database.run(sql, disconnect=False)
+            sql = f"""UPDATE clientes SET 
+            telefone= '{data['cliente']['input_telefone']}', 
+            email= '{data['cliente']['input_email']}', 
+            {f"senha= '{data['cliente']['input_senha']}'," if data['cliente']['input_senha'] else ''} 
+            
+                """
+            print(sql)
+            self.database.run(sql, disconnect=False)
+            
+        # signup new client
+        except Exception as error:
+            print(error)
+            # getting new client id
+            sql = f'SELECT * FROM clientes'
+            id = len(self.database.run(sql, disconnect=False))
 
-        # getting new client id on current store
-        sql = f'SELECT * FROM parceiro_{data["id_parceiro"]};'
-        id2 = len(self.database.run(sql, disconnect=False))
+            # inserting client into general CLIENTES tançe
+            sql = f"""INSERT INTO clientes
+                (id, nome, cpf, telefone, senha, email, lojas) 
+                VALUES ({id}, '{data['cliente']['input_nome']}', '{data['cliente']['input_cpf']}', '{data['cliente']['input_telefone']}', 
+                '{data['cliente']['input_senha']}', '{data['cliente']['input_email']}', '[{data['id_parceiro']}]');
+            """
+            print(sql)
+            self.database.run(sql, disconnect=False)
 
-        # inserting client into current store
-        sql = f"""INSERT INTO parceiro_{data['id_parceiro']}
-            (id, id_cliente, cupons) VALUES ({id2}, {id}, 0);
-        """
-        self.database.run(sql, disconnect=False)
-        
-        # getting standardized client
-        cliente = self.searchCpf({'id': data['id_parceiro'], 'cpf': data['cliente']['input_cpf']})
-        
-        return cliente
+        finally:
+            # getting new client id on current store
+            sql = f'SELECT * FROM parceiro_{data["id_parceiro"]};'
+            id2 = len(self.database.run(sql, disconnect=False))
+
+            # inserting client into current store
+            sql = f"""INSERT INTO parceiro_{data['id_parceiro']}
+                (id, id_cliente, cupons) VALUES ({id2}, {id}, 0);
+            """
+            self.database.run(sql, disconnect=False)
+            
+            # getting standardized client
+            cliente = self.searchCpf({'id': data['id_parceiro'], 'cpf': data['cliente']['input_cpf']})
+            
+            return cliente
 
             
 def normalizeUser(data):
