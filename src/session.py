@@ -23,9 +23,11 @@ class NewSession(Session):
 
         sql = f"SELECT * FROM {login_table} WHERE {login_column} = '{data['user']}'"
         try:
-            user = self.database.run(sql, dict_cursor = True)[0]
+            user = self.database.run(sql, dict_cursor = True, disconnect=False)[0]
 
         except Exception as error:
+            self.database.disconnect()
+            print(error)
             return {'error': 'Usuário não encontrado'}
         
         if data['password'] == user['senha']:
@@ -65,16 +67,22 @@ class NewSession(Session):
 
         sql = f'SELECT * FROM clientes WHERE cpf = {cpf}'
         try:
-            response = self.database.run(sql, True)[0]
+            cliente = self.database.run(sql, True, disconnect=False)[0]
         except:
+            self.database.disconnect()
             return {'error': 'Cliente não cadastrado.'}
             
-        lojas = eval(response['lojas'])
-        if id in lojas:
-            return response
-
-        else:
+        sql = f'SELECT * FROM parceiro_{id} WHERE id_cliente = {cliente["id"]}'
+        print(sql)
+        try:
+            response = self.database.run(sql, True)[0]
+            print(response)
+            cliente.update({'cupons': response["cupons"]})
+            return cliente
+        except:
+            self.database.disconnect()
             return {'error': 'Cliente não cadastrado nessa loja'}
+
             
 def normalizeUser(data):
     new_data = {}
