@@ -78,6 +78,10 @@ class NewSession(Session):
             response = self.database.run(sql, True)[0]
             print(response)
             cliente.update({'cupons': response["cupons"]})
+
+            history = self.getHistory(user_id=cliente['id'], user_type='parceiro', quantity=3)
+            cliente.update({'historico': history})
+            
             return cliente
         except:
             self.database.disconnect()
