@@ -46,11 +46,17 @@ def new_client():
 @app.route('/modificar_cupons/', methods=['POST'])
 def modificar_cupons():
     data = request.get_json()
-    print('')
-    print(data)
-    print('')
     cliente = session.modifyCoupons(data)
+    
     return json.dumps(cliente)
+
+@app.route('/fetch_store/', methods=['POST'])
+def fetch_store():
+    data = request.get_json()
+
+    parceiro = session.getParceiro(data)
+    print(parceiro)
+    return json.dumps(parceiro)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=4000, debug=True)

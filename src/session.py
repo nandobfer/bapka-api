@@ -175,7 +175,17 @@ class NewSession(Session):
 
         self.database.disconnect()
         return cliente
+    
+    def getParceiro(self, data):
+        self.database.connect()
+        sql = f'SELECT * FROM parceiros WHERE id = {data["id"]};'
+        parceiro = self.database.run(sql, True)[0]
 
+        historico = self.getHistory(data['id'], 'parceiro', 3)
+        parceiro.update({'historico': historico})
+        
+        self.database.disconnect()
+        return parceiro
             
 def normalizeUser(data):
     new_data = {}
