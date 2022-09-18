@@ -61,7 +61,7 @@ class NewSession(Session):
         print(data)
         return data
         
-    def searchCpf(self, data):
+    def searchCpf(self, data:dict):
         id = data['id']
         cpf = data['cpf']
 
@@ -82,6 +82,35 @@ class NewSession(Session):
         except:
             self.database.disconnect()
             return {'error': 'Cliente não cadastrado nessa loja'}
+
+    def signupClient(self, data):
+        # getting new client id
+        sql = f'SELECT * FROM clientes'
+        id = len(self.database.run(sql, disconnect=False))
+
+        # inserting client into general CLIENTES tançe
+        sql = f"""INSERT INTO clientes
+            (id, nome, cpf, telefone, senha, email, lojas) 
+            VALUES ({id}, '{data['cliente']['input_nome']}', '{data['cliente']['input_cpf']}', '{data['cliente']['input_telefone']}', 
+            '{data['cliente']['input_senha']}', '{data['cliente']['input_email']}', '[{data['id_parceiro']}]');
+        """
+        print(sql)
+        self.database.run(sql, disconnect=False)
+
+        # getting new client id on current store
+        sql = f'SELECT * FROM parceiro_{data["id_parceiro"]};'
+        id2 = len(self.database.run(sql, disconnect=False))
+
+        # inserting client into current store
+        sql = f"""INSERT INTO parceiro_{data['id_parceiro']}
+            (id, id_cliente, cupons) VALUES ({id2}, {id}, 0);
+        """
+        self.database.run(sql, disconnect=False)
+        
+        # getting standardized client
+        cliente = self.searchCpf({'id': data['id_parceiro'], 'cpf': data['cliente']['input_cpf']})
+        
+        return cliente
 
             
 def normalizeUser(data):

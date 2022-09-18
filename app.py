@@ -35,6 +35,13 @@ def search_cpf():
 
     return json.dumps(response)
 
+@app.route('/new_client/', methods=['POST'])
+def new_client():
+    data = request.get_json()
+    # {'id_parceiro': 0, 'cliente': {'input_nome': 'Marcos Testador', 'input_telefone': '77988776655', 'input_email': 'marcos@bapka.com.br', 'input_cpf': '12345678901', 'input_senha': '123', 'input_confirmacao': '123'}}
+    cliente = session.signupClient(data)
+
+    return json.dumps(cliente)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=4000, debug=True)
