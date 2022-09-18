@@ -135,6 +135,18 @@ class NewSession(Session):
             cliente = self.searchCpf({'id': data['id_parceiro'], 'cpf': data['cliente']['input_cpf']})
             
             return cliente
+        
+    def modifyCoupons(self, data):
+        # add coupon into current store db
+        sql = f"""UPDATE parceiro_{data['id_parceiro']} 
+                SET cupons = {data['total']}
+                WHERE id_cliente = {data['id_cliente']};
+        """
+        print(sql)
+        self.database.run(sql, disconnect=False)
+        
+        cliente = self.searchCpf({'id': data['id_parceiro'], 'cpf': data['cpf']})
+        return cliente
 
             
 def normalizeUser(data):
