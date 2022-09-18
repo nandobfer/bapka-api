@@ -50,7 +50,7 @@ class NewSession(Session):
         data = self.database.run(sql, True)
 
         for history in data:
-            history.update({'alvo': user_type.capitalize()})
+            history.update({'alvo': target_type.capitalize()})
             
             history.update({'id': history[f'id_{target_type}']})
             history.update({'nome': history[f'nome_{target_type}'].split()[0]})
