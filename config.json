@@ -6,6 +6,7 @@
         "password": "SucessoZOP2022!",
         "database": "bapkasor_sistema",
         "table_clientes": "clientes",
-        "table_parceiros": "parceiros"
+        "table_parceiros": "parceiros",
+        "table_historicos": "historicos"
     }
 }
