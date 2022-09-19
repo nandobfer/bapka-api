@@ -29,12 +29,10 @@ class NewSession(Session):
 
         sql = f"SELECT * FROM {login_table} WHERE {login_column} = '{data['user']}'"
         try:
-            response = self.database.run(sql, dict_cursor = True)
+            user = self.database.run(sql, dict_cursor = True)[0]
 
         except Exception as error:
             return {'error': 'Usuário não encontrado'}
-        
-        user = response[0]
         
         if data['password'] == user['senha']:
             user.update({'error': None})
