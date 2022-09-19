@@ -34,6 +34,10 @@ class NewSession(Session):
             user.update({'error': None})
             history = self.getHistory(user_id=user['id'], user_type=data['type'], quantity=3)
             user.update({'historico': history})
+            
+            if data['type'] == 'cliente':
+                lojas = self.getLojas(user)
+                user.update({'lojas': lojas})
             self.database.disconnect()
             return user
         else:
@@ -186,6 +190,25 @@ class NewSession(Session):
         
         self.database.disconnect()
         return parceiro
+    
+    def getLojas(self, data):
+        sql = f"SELECT * FROM parceiros;"
+        print(sql)
+        lojas = self.database.run(sql, True)
+        print(lojas)
+
+        for loja in lojas:
+            sql = f"SELECT * FROM parceiro_{loja['id']} WHERE id_cliente = {data['id']};"
+            print(sql)
+            cadastro = self.database.run(sql, True)
+            print(cadastro)
+            
+            if not cadastro:
+                lojas.remove(loja)
+            else:
+                loja.update({'cupons': cadastro[0]['cupons']})
+        
+        return lojas
             
 def normalizeUser(data):
     new_data = {}

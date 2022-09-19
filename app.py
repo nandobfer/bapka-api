@@ -53,10 +53,16 @@ def modificar_cupons():
 @app.route('/fetch_store/', methods=['POST'])
 def fetch_store():
     data = request.get_json()
-
     parceiro = session.getParceiro(data)
-    print(parceiro)
+
     return json.dumps(parceiro)
+
+@app.route('/lojas/', methods=['POST'])
+def lojas():
+    data = request.get_json()
+    lojas = session.getLojas(data)
+
+    return json.dumps(lojas)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=4000, debug=True)
