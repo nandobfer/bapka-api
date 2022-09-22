@@ -16,7 +16,7 @@ app.use(cors());
 
 // ROUTES
 
-var users = require('./routes/users');
-app.use('/api/v1/users', users);
+var login = require('./routes/login');
+app.use('/api/v1/login', login);
 
 module.exports = app;
