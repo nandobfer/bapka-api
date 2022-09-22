@@ -1,7 +1,7 @@
 {
     "server": {
-        "hostname": "bapkasorvetes.com.br",
-        "port": "4000"
+        "hostname": "127.0.0.1",
+        "port": 4000
     },
     "database": {
         "host": "bapkasorvetes.com.br",
